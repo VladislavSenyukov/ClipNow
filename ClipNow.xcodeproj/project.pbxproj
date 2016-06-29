@@ -1,0 +1,291 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D41664E41D23C47A00800550 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41664E31D23C47A00800550 /* AppDelegate.swift */; };
+		D41664E61D23C47A00800550 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41664E51D23C47A00800550 /* ViewController.swift */; };
+		D41664E91D23C47A00800550 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D41664E71D23C47A00800550 /* Main.storyboard */; };
+		D41664EB1D23C47A00800550 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D41664EA1D23C47A00800550 /* Assets.xcassets */; };
+		D41664EE1D23C47A00800550 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D41664EC1D23C47A00800550 /* LaunchScreen.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		D41664E01D23C47A00800550 /* ClipNow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClipNow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D41664E31D23C47A00800550 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D41664E51D23C47A00800550 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		D41664E81D23C47A00800550 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		D41664EA1D23C47A00800550 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D41664ED1D23C47A00800550 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		D41664EF1D23C47A00800550 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D41664DD1D23C47A00800550 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D41664D71D23C47A00800550 = {
+			isa = PBXGroup;
+			children = (
+				D41664E21D23C47A00800550 /* ClipNow */,
+				D41664E11D23C47A00800550 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D41664E11D23C47A00800550 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D41664E01D23C47A00800550 /* ClipNow.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D41664E21D23C47A00800550 /* ClipNow */ = {
+			isa = PBXGroup;
+			children = (
+				D41664E31D23C47A00800550 /* AppDelegate.swift */,
+				D41664E51D23C47A00800550 /* ViewController.swift */,
+				D41664E71D23C47A00800550 /* Main.storyboard */,
+				D41664EA1D23C47A00800550 /* Assets.xcassets */,
+				D41664EC1D23C47A00800550 /* LaunchScreen.storyboard */,
+				D41664EF1D23C47A00800550 /* Info.plist */,
+			);
+			path = ClipNow;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D41664DF1D23C47A00800550 /* ClipNow */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D41664F21D23C47A00800550 /* Build configuration list for PBXNativeTarget "ClipNow" */;
+			buildPhases = (
+				D41664DC1D23C47A00800550 /* Sources */,
+				D41664DD1D23C47A00800550 /* Frameworks */,
+				D41664DE1D23C47A00800550 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ClipNow;
+			productName = ClipNow;
+			productReference = D41664E01D23C47A00800550 /* ClipNow.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D41664D81D23C47A00800550 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0720;
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = ruckef;
+				TargetAttributes = {
+					D41664DF1D23C47A00800550 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = D41664DB1D23C47A00800550 /* Build configuration list for PBXProject "ClipNow" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D41664D71D23C47A00800550;
+			productRefGroup = D41664E11D23C47A00800550 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D41664DF1D23C47A00800550 /* ClipNow */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D41664DE1D23C47A00800550 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D41664EE1D23C47A00800550 /* LaunchScreen.storyboard in Resources */,
+				D41664EB1D23C47A00800550 /* Assets.xcassets in Resources */,
+				D41664E91D23C47A00800550 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D41664DC1D23C47A00800550 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D41664E61D23C47A00800550 /* ViewController.swift in Sources */,
+				D41664E41D23C47A00800550 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		D41664E71D23C47A00800550 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D41664E81D23C47A00800550 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		D41664EC1D23C47A00800550 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D41664ED1D23C47A00800550 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		D41664F01D23C47A00800550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D41664F11D23C47A00800550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D41664F31D23C47A00800550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = ClipNow/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruckef.ClipNow;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		D41664F41D23C47A00800550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = ClipNow/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ruckef.ClipNow;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D41664DB1D23C47A00800550 /* Build configuration list for PBXProject "ClipNow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D41664F01D23C47A00800550 /* Debug */,
+				D41664F11D23C47A00800550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D41664F21D23C47A00800550 /* Build configuration list for PBXNativeTarget "ClipNow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D41664F31D23C47A00800550 /* Debug */,
+				D41664F41D23C47A00800550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D41664D81D23C47A00800550 /* Project object */;
+}
