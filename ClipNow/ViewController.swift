@@ -18,6 +18,7 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
     @IBOutlet var swapButton: UIButton?
     @IBOutlet var recordControl: CNRecordControl?
     @IBOutlet var recordControlCenterX: NSLayoutConstraint?
+    @IBOutlet var spinner: UIActivityIndicatorView?
     var mainPreview: UIView?
     var playerView: CNVideoPlayerView?
     
@@ -31,7 +32,7 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
         backgroundPreview?.addPreview(previewBgr)
         
         mainPreview = captureManager.createPreview(CGRect(x: 0, y: 0, width: 190, height: 190))
-        previewContainer?.addSubview(mainPreview!)
+        previewContainer?.insertSubview(mainPreview!, belowSubview: spinner!)
     }
     
     override func prefersStatusBarHidden() -> Bool {
@@ -63,17 +64,15 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
         }
     }
     
-    func captureManagerDidStartPostProcessing(manager: CNCaptureManager) {
-        //TODO add loading preview spinners
-    }
-    
     func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager, savedMediaPath: NSURL!) {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            self.spinner?.stopAnimating()
             self.playerView = CNVideoPlayerView()
             self.playerView?.translatesAutoresizingMaskIntoConstraints = false
             self.playerView?.backgroundColor = UIColor.blackColor()
             self.previewContainer?.insertSubview(self.playerView!, aboveSubview: self.mainPreview!)
             self.playerView?.addSuperviewSizedConstraints()
+            self.playerView?.play(url: savedMediaPath)
             
             self.recordControl?.recording = false
             self.swapButton?.enabled = true
@@ -91,6 +90,7 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
     }
 
     func recordControlStopClicked(control: CNRecordControl) {
+        spinner?.startAnimating()
         recordControl?.stopCounter()
         captureManager.stopCaptureVideo()
     }

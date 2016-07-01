@@ -13,7 +13,6 @@ import Photos
 protocol CNCaptureManagerDelegate {
     func captureManager(manager:CNCaptureManager, didChangeRunningStatus running: Bool)
     func captureManagerDidStartCaptureVideo(manager:CNCaptureManager)
-    func captureManagerDidStartPostProcessing(manager:CNCaptureManager)
     func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager, savedMediaPath: NSURL!)
 }
 
@@ -140,7 +139,6 @@ class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDeleg
             print(anError.localizedDescription)
         }
         self.videoCapturer = nil
-        delegate?.captureManagerDidStartPostProcessing(self)
         CNVideoCropper.cropVideoToSquareCentered(path) { (newPath) -> () in
             self.saveTempVideoToPhotoLibrary(newPath)
         }

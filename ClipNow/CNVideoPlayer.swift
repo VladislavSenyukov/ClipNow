@@ -9,7 +9,12 @@
 import AVFoundation
 
 class CNVideoPlayerView: UIView {
+    
     func play(url url:NSURL) {
+        
+    }
+    
+    func stop() {
         
     }
 }
