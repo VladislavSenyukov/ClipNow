@@ -12,6 +12,12 @@
 		D41664E91D23C47A00800550 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D41664E71D23C47A00800550 /* Main.storyboard */; };
 		D41664EB1D23C47A00800550 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D41664EA1D23C47A00800550 /* Assets.xcassets */; };
 		D41664EE1D23C47A00800550 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D41664EC1D23C47A00800550 /* LaunchScreen.storyboard */; };
+		D41664F61D23CD1800800550 /* CNCaptureManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41664F51D23CD1800800550 /* CNCaptureManager.swift */; };
+		D4362BF21D23E66600CBF0BB /* CNVideoPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4362BF11D23E66600CBF0BB /* CNVideoPreview.swift */; };
+		D4438D051D25639D002F0D90 /* CNRecordControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4438D041D25639D002F0D90 /* CNRecordControl.swift */; };
+		D4EFE74A1D243769007B5E95 /* CNPreviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE7491D243769007B5E95 /* CNPreviewManager.swift */; };
+		D4EFE7501D24B702007B5E95 /* NSLayoutConstraint+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE74D1D24B702007B5E95 /* NSLayoutConstraint+Additions.m */; };
+		D4EFE7511D24B702007B5E95 /* View+LayoutConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE74F1D24B702007B5E95 /* View+LayoutConstraints.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +28,15 @@
 		D41664EA1D23C47A00800550 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D41664ED1D23C47A00800550 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D41664EF1D23C47A00800550 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D41664F51D23CD1800800550 /* CNCaptureManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNCaptureManager.swift; sourceTree = "<group>"; };
+		D421F8581D24BDAB00E067C2 /* ClipNow-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ClipNow-Bridging-Header.h"; sourceTree = "<group>"; };
+		D4362BF11D23E66600CBF0BB /* CNVideoPreview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNVideoPreview.swift; sourceTree = "<group>"; };
+		D4438D041D25639D002F0D90 /* CNRecordControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNRecordControl.swift; sourceTree = "<group>"; };
+		D4EFE7491D243769007B5E95 /* CNPreviewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNPreviewManager.swift; sourceTree = "<group>"; };
+		D4EFE74C1D24B702007B5E95 /* NSLayoutConstraint+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSLayoutConstraint+Additions.h"; sourceTree = "<group>"; };
+		D4EFE74D1D24B702007B5E95 /* NSLayoutConstraint+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSLayoutConstraint+Additions.m"; sourceTree = "<group>"; };
+		D4EFE74E1D24B702007B5E95 /* View+LayoutConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "View+LayoutConstraints.h"; sourceTree = "<group>"; };
+		D4EFE74F1D24B702007B5E95 /* View+LayoutConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "View+LayoutConstraints.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,12 +71,37 @@
 			children = (
 				D41664E31D23C47A00800550 /* AppDelegate.swift */,
 				D41664E51D23C47A00800550 /* ViewController.swift */,
+				D4438D041D25639D002F0D90 /* CNRecordControl.swift */,
+				D4438D061D25CE5F002F0D90 /* Managers */,
+				D4362BF11D23E66600CBF0BB /* CNVideoPreview.swift */,
 				D41664E71D23C47A00800550 /* Main.storyboard */,
 				D41664EA1D23C47A00800550 /* Assets.xcassets */,
 				D41664EC1D23C47A00800550 /* LaunchScreen.storyboard */,
 				D41664EF1D23C47A00800550 /* Info.plist */,
+				D421F8581D24BDAB00E067C2 /* ClipNow-Bridging-Header.h */,
+				D4EFE74B1D24B702007B5E95 /* NSLayoutConstraintsHelpers */,
 			);
 			path = ClipNow;
+			sourceTree = "<group>";
+		};
+		D4438D061D25CE5F002F0D90 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				D41664F51D23CD1800800550 /* CNCaptureManager.swift */,
+				D4EFE7491D243769007B5E95 /* CNPreviewManager.swift */,
+			);
+			name = Managers;
+			sourceTree = "<group>";
+		};
+		D4EFE74B1D24B702007B5E95 /* NSLayoutConstraintsHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				D4EFE74C1D24B702007B5E95 /* NSLayoutConstraint+Additions.h */,
+				D4EFE74D1D24B702007B5E95 /* NSLayoutConstraint+Additions.m */,
+				D4EFE74E1D24B702007B5E95 /* View+LayoutConstraints.h */,
+				D4EFE74F1D24B702007B5E95 /* View+LayoutConstraints.m */,
+			);
+			path = NSLayoutConstraintsHelpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,6 +176,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				D41664E61D23C47A00800550 /* ViewController.swift in Sources */,
+				D4438D051D25639D002F0D90 /* CNRecordControl.swift in Sources */,
+				D4362BF21D23E66600CBF0BB /* CNVideoPreview.swift in Sources */,
+				D4EFE7511D24B702007B5E95 /* View+LayoutConstraints.m in Sources */,
+				D41664F61D23CD1800800550 /* CNCaptureManager.swift in Sources */,
+				D4EFE7501D24B702007B5E95 /* NSLayoutConstraint+Additions.m in Sources */,
+				D4EFE74A1D243769007B5E95 /* CNPreviewManager.swift in Sources */,
 				D41664E41D23C47A00800550 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -247,10 +293,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = ClipNow/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ruckef.ClipNow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ClipNow/ClipNow-Bridging-Header.h";
 			};
 			name = Debug;
 		};
@@ -259,9 +309,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = ClipNow/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ruckef.ClipNow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ClipNow/ClipNow-Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -284,6 +337,7 @@
 				D41664F41D23C47A00800550 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
