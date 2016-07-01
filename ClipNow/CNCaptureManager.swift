@@ -13,12 +13,11 @@ import Photos
 protocol CNCaptureManagerDelegate {
     func captureManager(manager:CNCaptureManager, didChangeRunningStatus running: Bool)
     func captureManagerDidStartCaptureVideo(manager:CNCaptureManager)
-    func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager)
     func captureManagerDidStartPostProcessing(manager:CNCaptureManager)
-    func captureManagerDidFinishPostProcessing(manager:CNCaptureManager, savedMediaPath: NSURL!)
+    func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager, savedMediaPath: NSURL!)
 }
 
-class CNCaptureManager: NSObject, CNPreviewManagerCaptureDelegate {
+class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDelegate {
     
     var delegate: CNCaptureManagerDelegate?
     var captureQueue: dispatch_queue_t = dispatch_queue_create("com.apple.captureQueue", DISPATCH_QUEUE_SERIAL)
@@ -26,6 +25,9 @@ class CNCaptureManager: NSObject, CNPreviewManagerCaptureDelegate {
     
     var captureSession = AVCaptureSession()
     var previewManager = CNPreviewManager()
+    var videoCapturer: CNVideoCapturer?
+    var videoCropper: CNVideoCropper?
+    
     var currentDevice: AVCaptureDevice?
     var currentInput: AVCaptureDeviceInput?
     var currentPreviewOutput: AVCaptureVideoDataOutput?
@@ -33,7 +35,7 @@ class CNCaptureManager: NSObject, CNPreviewManagerCaptureDelegate {
     override init() {
         super.init()
         dispatch_async(captureQueue) { () -> Void in
-            self.previewManager.captureDelegate = self
+            self.previewManager.delegate = self
             self.captureSession.addObserver(self, forKeyPath: "running", options: .New, context: nil)
             self.setupSessionOutputs()
         }
@@ -44,7 +46,7 @@ class CNCaptureManager: NSObject, CNPreviewManagerCaptureDelegate {
         dispatch_async(captureQueue) { () -> Void in
             autoreleasepool {
                 self.previewManager.settingUp = true
-                self.previewManager.clearPreviews()
+//                self.previewManager.clearPreviews()
                 self.captureSession.stopRunning()
                 self.setupSessionInputs(isFront)
                 self.captureSession.startRunning()
@@ -105,35 +107,44 @@ class CNCaptureManager: NSObject, CNPreviewManagerCaptureDelegate {
     func startCaptureVideo() {
         dispatch_async(captureQueue) { () -> Void in
             if self.captureSession.running {
-                self.previewManager.startCapturingPreviewVideo(self.makePathForCapturedVideo())
+                self.videoCapturer = CNVideoCapturer()
+                self.videoCapturer?.delegate = self
+                let tempPath = NSURL.tempPathForFile("temp_output.mov")
+                let videoWidth = CGFloat(300)
+                let resolution = self.previewManager.cameraSourceResolution
+                let aspect = resolution.height / resolution.width
+                let videoSize = CGSize(width: videoWidth, height: ceil(videoWidth * aspect))
+                self.videoCapturer?.startCapturingPreviewVideo(tempPath, videoSize: videoSize)
             }
         }
     }
     
     func stopCaptureVideo() {
         dispatch_async(captureQueue) { () -> Void in
-            if self.previewManager.capturing {
-                self.previewManager.stopCapturingPreviewVideo()
-            }
+            self.videoCapturer?.stopCapturingPreviewVideo()
         }
     }
     
-    func previewManagerDidStartCapturingPreviewVideo(successfull: Bool) {
+    func previewManagerDidOutputImageBuffer(manager: CNPreviewManager, imageBuffer: CVImageBuffer) {
+        videoCapturer?.appendImageBuffer(imageBuffer)
+    }
+    
+    func videoCapturerDidStartCapturingPreviewVideo(capturer:CNVideoCapturer, successfull: Bool) {
         if successfull {
             delegate?.captureManagerDidStartCaptureVideo(self)
         }
     }
     
-    func previewManagerDidFinishCapturingPreviewVideo(path: NSURL, error: NSError?) {
+    func videoCapturerDidFinishCapturingPreviewVideo(capturer:CNVideoCapturer, path: NSURL, error: NSError?) {
         if let anError = error {
             print(anError.localizedDescription)
         }
-        delegate?.captureManagerDidFinishCaptureVideo(self)
-        // TODO: postProcessing
+        self.videoCapturer = nil
         delegate?.captureManagerDidStartPostProcessing(self)
-        saveTempVideoToPhotoLibrary(path)
+        CNVideoCropper.cropVideoToSquareCentered(path) { (newPath) -> () in
+            self.saveTempVideoToPhotoLibrary(newPath)
+        }
     }
-    
     
     func saveTempVideoToPhotoLibrary(videoPath: NSURL) {
         let photosLibr = PHPhotoLibrary.sharedPhotoLibrary()
@@ -156,7 +167,7 @@ class CNCaptureManager: NSObject, CNPreviewManagerCaptureDelegate {
                         if result.count == 1 {
                             let asset = result.objectAtIndex(0) as! PHAsset
                             self.getAssetUrl(asset, completionHandler: { (responseURL) -> Void in
-                                self.delegate?.captureManagerDidFinishPostProcessing(self, savedMediaPath: responseURL)
+                                self.delegate?.captureManagerDidFinishCaptureVideo(self, savedMediaPath: responseURL)
                             })
                         }
                     }
@@ -180,19 +191,6 @@ class CNCaptureManager: NSObject, CNPreviewManagerCaptureDelegate {
         }
     }
     
-    func makePathForCapturedVideo() -> NSURL {
-        let outputPath = NSTemporaryDirectory() + "temp_output.mov"
-        if NSFileManager.defaultManager().fileExistsAtPath(outputPath) {
-            do {
-                try NSFileManager.defaultManager().removeItemAtPath(outputPath)
-            }
-            catch let error as NSError {
-                print(error.localizedDescription)
-            }
-        }
-        return NSURL(fileURLWithPath: outputPath)
-    }
-    
     override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         if keyPath == "running" {
             if let session = object as? AVCaptureSession {
@@ -203,6 +201,7 @@ class CNCaptureManager: NSObject, CNPreviewManagerCaptureDelegate {
 }
 
 extension CNCaptureManager {
+
     func getAssetUrl(mPhasset : PHAsset, completionHandler : ((responseURL : NSURL?) -> Void)){
         if mPhasset.mediaType == .Image {
             let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
@@ -225,5 +224,20 @@ extension CNCaptureManager {
                 }
             })
         }
+    }
+}
+
+extension NSURL {
+    static func tempPathForFile(name: String) -> NSURL {
+        let outputPath = NSTemporaryDirectory() + name
+        if NSFileManager.defaultManager().fileExistsAtPath(outputPath) {
+            do {
+                try NSFileManager.defaultManager().removeItemAtPath(outputPath)
+            }
+            catch let error as NSError {
+                print(error.localizedDescription)
+            }
+        }
+        return NSURL(fileURLWithPath: outputPath)
     }
 }

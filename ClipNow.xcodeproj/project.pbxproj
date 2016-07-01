@@ -15,6 +15,9 @@
 		D41664F61D23CD1800800550 /* CNCaptureManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41664F51D23CD1800800550 /* CNCaptureManager.swift */; };
 		D4362BF21D23E66600CBF0BB /* CNVideoPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4362BF11D23E66600CBF0BB /* CNVideoPreview.swift */; };
 		D4438D051D25639D002F0D90 /* CNRecordControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4438D041D25639D002F0D90 /* CNRecordControl.swift */; };
+		D47467791D26F2970004A8B6 /* CNVideoCropper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47467781D26F2970004A8B6 /* CNVideoCropper.swift */; };
+		D474677B1D26F49C0004A8B6 /* CNVideoCapturer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D474677A1D26F49C0004A8B6 /* CNVideoCapturer.swift */; };
+		D474677D1D2717560004A8B6 /* CNVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D474677C1D2717560004A8B6 /* CNVideoPlayer.swift */; };
 		D4EFE74A1D243769007B5E95 /* CNPreviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE7491D243769007B5E95 /* CNPreviewManager.swift */; };
 		D4EFE7501D24B702007B5E95 /* NSLayoutConstraint+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE74D1D24B702007B5E95 /* NSLayoutConstraint+Additions.m */; };
 		D4EFE7511D24B702007B5E95 /* View+LayoutConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE74F1D24B702007B5E95 /* View+LayoutConstraints.m */; };
@@ -32,6 +35,9 @@
 		D421F8581D24BDAB00E067C2 /* ClipNow-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ClipNow-Bridging-Header.h"; sourceTree = "<group>"; };
 		D4362BF11D23E66600CBF0BB /* CNVideoPreview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNVideoPreview.swift; sourceTree = "<group>"; };
 		D4438D041D25639D002F0D90 /* CNRecordControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNRecordControl.swift; sourceTree = "<group>"; };
+		D47467781D26F2970004A8B6 /* CNVideoCropper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNVideoCropper.swift; sourceTree = "<group>"; };
+		D474677A1D26F49C0004A8B6 /* CNVideoCapturer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNVideoCapturer.swift; sourceTree = "<group>"; };
+		D474677C1D2717560004A8B6 /* CNVideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNVideoPlayer.swift; sourceTree = "<group>"; };
 		D4EFE7491D243769007B5E95 /* CNPreviewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNPreviewManager.swift; sourceTree = "<group>"; };
 		D4EFE74C1D24B702007B5E95 /* NSLayoutConstraint+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSLayoutConstraint+Additions.h"; sourceTree = "<group>"; };
 		D4EFE74D1D24B702007B5E95 /* NSLayoutConstraint+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSLayoutConstraint+Additions.m"; sourceTree = "<group>"; };
@@ -72,9 +78,10 @@
 				D41664E31D23C47A00800550 /* AppDelegate.swift */,
 				D41664E51D23C47A00800550 /* ViewController.swift */,
 				D4438D041D25639D002F0D90 /* CNRecordControl.swift */,
-				D4438D061D25CE5F002F0D90 /* Managers */,
 				D4362BF11D23E66600CBF0BB /* CNVideoPreview.swift */,
+				D474677C1D2717560004A8B6 /* CNVideoPlayer.swift */,
 				D41664E71D23C47A00800550 /* Main.storyboard */,
+				D4438D061D25CE5F002F0D90 /* Managers */,
 				D41664EA1D23C47A00800550 /* Assets.xcassets */,
 				D41664EC1D23C47A00800550 /* LaunchScreen.storyboard */,
 				D41664EF1D23C47A00800550 /* Info.plist */,
@@ -89,6 +96,8 @@
 			children = (
 				D41664F51D23CD1800800550 /* CNCaptureManager.swift */,
 				D4EFE7491D243769007B5E95 /* CNPreviewManager.swift */,
+				D474677A1D26F49C0004A8B6 /* CNVideoCapturer.swift */,
+				D47467781D26F2970004A8B6 /* CNVideoCropper.swift */,
 			);
 			name = Managers;
 			sourceTree = "<group>";
@@ -181,6 +190,9 @@
 				D4EFE7511D24B702007B5E95 /* View+LayoutConstraints.m in Sources */,
 				D41664F61D23CD1800800550 /* CNCaptureManager.swift in Sources */,
 				D4EFE7501D24B702007B5E95 /* NSLayoutConstraint+Additions.m in Sources */,
+				D474677B1D26F49C0004A8B6 /* CNVideoCapturer.swift in Sources */,
+				D474677D1D2717560004A8B6 /* CNVideoPlayer.swift in Sources */,
+				D47467791D26F2970004A8B6 /* CNVideoCropper.swift in Sources */,
 				D4EFE74A1D243769007B5E95 /* CNPreviewManager.swift in Sources */,
 				D41664E41D23C47A00800550 /* AppDelegate.swift in Sources */,
 			);

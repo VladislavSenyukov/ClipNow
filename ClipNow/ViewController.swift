@@ -13,11 +13,13 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
 
     var captureManager = CNCaptureManager()
     @IBOutlet var backgroundPreview: CNVideoPreviewBlurred?
+    @IBOutlet var previewContainer: UIView?
     @IBOutlet var imageOverlay: UIImageView?
     @IBOutlet var swapButton: UIButton?
     @IBOutlet var recordControl: CNRecordControl?
     @IBOutlet var recordControlCenterX: NSLayoutConstraint?
     var mainPreview: UIView?
+    var playerView: CNVideoPlayerView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,13 +31,7 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
         backgroundPreview?.addPreview(previewBgr)
         
         mainPreview = captureManager.createPreview(CGRect(x: 0, y: 0, width: 190, height: 190))
-        view.insertSubview(mainPreview!, belowSubview: imageOverlay!)
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        mainPreview?.frame.origin.x = (view.bounds.width - mainPreview!.bounds.width)/2
-        mainPreview?.frame.origin.y = (view.bounds.height - mainPreview!.bounds.height)/2
+        previewContainer?.addSubview(mainPreview!)
     }
     
     override func prefersStatusBarHidden() -> Bool {
@@ -67,17 +63,18 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
         }
     }
     
-    func captureManagerDidFinishCaptureVideo(manager: CNCaptureManager) {
+    func captureManagerDidStartPostProcessing(manager: CNCaptureManager) {
         //TODO add loading preview spinners
     }
     
-    func captureManagerDidStartPostProcessing(manager: CNCaptureManager) {
-        
-    }
-    
-    func captureManagerDidFinishPostProcessing(manager: CNCaptureManager, savedMediaPath: NSURL!) {
-        // TODO start a video player on preview
+    func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager, savedMediaPath: NSURL!) {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            self.playerView = CNVideoPlayerView()
+            self.playerView?.translatesAutoresizingMaskIntoConstraints = false
+            self.playerView?.backgroundColor = UIColor.blackColor()
+            self.previewContainer?.insertSubview(self.playerView!, aboveSubview: self.mainPreview!)
+            self.playerView?.addSuperviewSizedConstraints()
+            
             self.recordControl?.recording = false
             self.swapButton?.enabled = true
         }

@@ -10,26 +10,19 @@ import UIKit
 import GLKit
 import AVFoundation
 
-protocol CNPreviewManagerCaptureDelegate {
-    func previewManagerDidStartCapturingPreviewVideo(successfull: Bool);
-    func previewManagerDidFinishCapturingPreviewVideo(path: NSURL, error: NSError?);
+protocol CNPreviewManagerDelegate {
+    func previewManagerDidOutputImageBuffer(manager: CNPreviewManager, imageBuffer: CVImageBuffer)
 }
 
 class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
+    var delegate: CNPreviewManagerDelegate?
     var previews = [GLKView]()
     let glContext: EAGLContext
     let ciContext: CIContext
+    var cameraSourceResolution: CGSize = CGSizeZero
     var scale = UIScreen.mainScreen().scale
     var settingUp = false
-    
-    // capturing video
-    var captureDelegate: CNPreviewManagerCaptureDelegate?
-    var assetWriter: AVAssetWriter?
-    var assetWriterInput: AVAssetWriterInput?
-    var pixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
-    var framesWritten: Int64 = 0
-    var capturing = false
     
     override init() {
         glContext = EAGLContext(API: .OpenGLES3)
@@ -59,46 +52,6 @@ class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate 
         return preview
     }
     
-    func startCapturingPreviewVideo(tempFilePathUrl: NSURL) {
-        let outputSettings: [String:AnyObject] = [  AVVideoWidthKey     : 300,
-                                                    AVVideoHeightKey    : 300,
-                                                    AVVideoCodecKey     : AVVideoCodecH264]
-        assetWriterInput = AVAssetWriterInput(mediaType: AVMediaTypeVideo, outputSettings: outputSettings)
-        let pixelBufferAttributes : [String:AnyObject] = [kCVPixelBufferPixelFormatTypeKey as String : NSNumber(unsignedInt: kCVPixelFormatType_32BGRA)]
-        pixelBufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: assetWriterInput!, sourcePixelBufferAttributes: pixelBufferAttributes)
-        do {
-            assetWriter = try AVAssetWriter(URL: tempFilePathUrl, fileType: AVFileTypeMPEG4)
-        } catch (let error as NSError) {
-            print(error.localizedDescription)
-        }
-        if (assetWriter?.canAddInput(assetWriterInput!))! {
-            assetWriter?.addInput(assetWriterInput!)
-        }
-        assetWriterInput?.expectsMediaDataInRealTime = true
-        if (assetWriter?.startWriting())! {
-            assetWriter?.startSessionAtSourceTime(kCMTimeZero)
-            framesWritten = 0
-            capturing = true
-
-            var success = false
-            switch (assetWriter?.status)! {
-                case .Writing :
-                    success = true
-                default: break
-            }
-            captureDelegate?.previewManagerDidStartCapturingPreviewVideo(success)
-        }
-    }
-    
-    func stopCapturingPreviewVideo() -> AVAssetWriter {
-        capturing = false
-        assetWriter?.finishWritingWithCompletionHandler({[unowned self] () -> Void in
-            let url = (self.assetWriter?.outputURL)!
-            self.captureDelegate?.previewManagerDidFinishCapturingPreviewVideo(url, error: self.assetWriter?.error)
-        })
-        return assetWriter!
-    }
-    
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
         
         if settingUp {
@@ -109,18 +62,19 @@ class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate 
             EAGLContext.setCurrentContext(glContext)
         }
         
-        let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-        if let anImageBuffer = imageBuffer {
-            if capturing {
-                captureOutputImageBuffer(anImageBuffer)
-            }
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+            return
         }
         
-        let image = CIImage(CVPixelBuffer: imageBuffer!, options: nil)
+        CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly)
+        let image = CIImage(CVPixelBuffer: imageBuffer, options: nil)
+        var sourceRect = image.extent
+        let sourceAspect = sourceRect.width / sourceRect.height
+        if !CGSizeEqualToSize(cameraSourceResolution, sourceRect.size) {
+            cameraSourceResolution = sourceRect.size
+        }
         
         for preview in previews  {
-            var sourceRect = image.extent
-            let sourceAspect = sourceRect.width / sourceRect.height
             var drawRect = preview.bounds
             drawRect.size.width *= scale
             drawRect.size.height *= scale
@@ -142,12 +96,9 @@ class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate 
             preview.display()
             preview.deleteDrawable()
         }
-    }
-    
-    func captureOutputImageBuffer(imageBuffer: CVImageBuffer) {
-        if (assetWriterInput?.readyForMoreMediaData)! {
-            pixelBufferAdaptor?.appendPixelBuffer(imageBuffer, withPresentationTime: CMTimeMake(framesWritten, 25))
-            framesWritten++
-        }
+        
+        delegate?.previewManagerDidOutputImageBuffer(self, imageBuffer: imageBuffer)
+
+        CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly)
     }
 }

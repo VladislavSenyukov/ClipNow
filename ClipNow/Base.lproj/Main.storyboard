@@ -21,6 +21,14 @@
                                 <rect key="frame" x="0.0" y="20" width="600" height="580"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="j8N-iu-MYa">
+                                <rect key="frame" x="205" y="205" width="190" height="190"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="190" id="Jev-EA-4bi"/>
+                                    <constraint firstAttribute="width" constant="190" id="cLa-fU-pWN"/>
+                                </constraints>
+                            </view>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="CaptureDevice" translatesAutoresizingMaskIntoConstraints="NO" id="SmY-iW-sua">
                                 <rect key="frame" x="0.0" y="20" width="600" height="580"/>
                             </imageView>
@@ -52,6 +60,7 @@
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="TlB-2T-mTZ" secondAttribute="bottom" id="G9L-Me-qE4"/>
                             <constraint firstAttribute="trailing" secondItem="SmY-iW-sua" secondAttribute="trailing" id="MdA-ot-xQS"/>
                             <constraint firstItem="GSd-JB-6WF" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="20" id="SCY-j6-KVw"/>
+                            <constraint firstItem="j8N-iu-MYa" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Sx0-Ga-AI7"/>
                             <constraint firstItem="GSd-JB-6WF" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="20" id="WS8-Ma-c6M"/>
                             <constraint firstItem="TlB-2T-mTZ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="XIb-Xo-bTn"/>
                             <constraint firstItem="LRb-KT-zNZ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="10" id="XpF-5B-ACn"/>
@@ -59,6 +68,7 @@
                             <constraint firstItem="SmY-iW-sua" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="jDA-Xe-XRg"/>
                             <constraint firstAttribute="trailing" secondItem="GSd-JB-6WF" secondAttribute="trailing" constant="20" id="mpB-CX-b4z"/>
                             <constraint firstItem="SmY-iW-sua" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="n1m-1w-HeR"/>
+                            <constraint firstItem="j8N-iu-MYa" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="xO0-g6-QLh"/>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
@@ -70,6 +80,7 @@
                     <connections>
                         <outlet property="backgroundPreview" destination="TlB-2T-mTZ" id="kHo-MG-hG1"/>
                         <outlet property="imageOverlay" destination="SmY-iW-sua" id="IhK-nh-rzl"/>
+                        <outlet property="previewContainer" destination="j8N-iu-MYa" id="pXB-IM-LN4"/>
                         <outlet property="recordControl" destination="LRb-KT-zNZ" id="i9t-jk-Oab"/>
                         <outlet property="recordControlCenterX" destination="XpF-5B-ACn" id="I57-xe-Pe2"/>
                         <outlet property="swapButton" destination="GSd-JB-6WF" id="opX-7I-ngJ"/>
