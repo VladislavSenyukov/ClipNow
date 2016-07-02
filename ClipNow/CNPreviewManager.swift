@@ -14,10 +14,16 @@ protocol CNPreviewManagerDelegate {
     func previewManagerDidOutputImageBuffer(manager: CNPreviewManager, imageBuffer: CVImageBuffer)
 }
 
-class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+class CNGLPreview: GLKView {
+    override func drawRect(rect: CGRect) {
+        super.drawRect(rect)
+    }
+}
+
+class CNPreviewManager : NSObject {
     
     var delegate: CNPreviewManagerDelegate?
-    var previews = [GLKView]()
+    var previews = [CNGLPreview]()
     let glContext: EAGLContext
     let ciContext: CIContext
     var cameraSourceResolution: CGSize = CGSizeZero
@@ -29,8 +35,18 @@ class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate 
         ciContext = CIContext(EAGLContext: glContext, options: [kCIContextWorkingColorSpace : NSNull()])
     }
     
-    func fillBlack() {
-        glClearColor(0, 0, 0, 1)
+    func stopRunning() {
+        settingUp = true
+        // for some reason this will crash occasionally if we want to have a fill color instead of a frozen image when switching cameras
+//        clearPreviews()
+    }
+    
+    func startRunning() {
+        settingUp = false
+    }
+    
+    func fillWithDefaultColor () {
+        glClearColor(0.3, 0.3, 0.3, 1)
         glClear(GLbitfield(GL_COLOR_BUFFER_BIT))
     }
     
@@ -40,17 +56,20 @@ class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate 
         }
         for preview in previews  {
             preview.bindDrawable()
-            fillBlack()
+            fillWithDefaultColor()
             preview.display()
             preview.deleteDrawable()
         }
     }
     
     func createPreview(frame: CGRect, isFront: Bool) -> UIView {
-        let preview = GLKView(frame: frame, context: glContext)
+        let preview = CNGLPreview(frame: frame, context: glContext)
         previews.append(preview)
         return preview
     }
+}
+
+extension CNPreviewManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
         
@@ -88,7 +107,7 @@ class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate 
             }
             
             preview.bindDrawable()
-            fillBlack()
+            fillWithDefaultColor()
             glEnable(GLenum(GL_BLEND))
             glBlendFunc(GLenum(GL_ONE), GLenum(GL_ONE_MINUS_SRC_ALPHA))
             
@@ -98,7 +117,7 @@ class CNPreviewManager : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate 
         }
         
         delegate?.previewManagerDidOutputImageBuffer(self, imageBuffer: imageBuffer)
-
+        
         CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly)
     }
 }

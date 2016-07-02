@@ -55,6 +55,7 @@ class CNVideoCapturer {
     
     func stopCapturingPreviewVideo() -> AVAssetWriter {
         capturing = false
+        assetWriterInput?.markAsFinished()
         assetWriter?.finishWritingWithCompletionHandler({[unowned self] () -> Void in
             let url = (self.assetWriter?.outputURL)!
             self.delegate?.videoCapturerDidFinishCapturingPreviewVideo(self, path: url, error: self.assetWriter?.error)

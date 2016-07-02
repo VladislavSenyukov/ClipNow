@@ -11,12 +11,12 @@ import AVFoundation
 import Photos
 
 protocol CNCaptureManagerDelegate {
-    func captureManager(manager:CNCaptureManager, didChangeRunningStatus running: Bool)
+    func captureManagerDidSwitchCamera(manager:CNCaptureManager)
     func captureManagerDidStartCaptureVideo(manager:CNCaptureManager)
     func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager, savedMediaPath: NSURL!)
 }
 
-class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDelegate {
+class CNCaptureManager: NSObject {
     
     var delegate: CNCaptureManagerDelegate?
     var captureQueue: dispatch_queue_t = dispatch_queue_create("com.apple.captureQueue", DISPATCH_QUEUE_SERIAL)
@@ -35,7 +35,6 @@ class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDeleg
         super.init()
         dispatch_async(captureQueue) { () -> Void in
             self.previewManager.delegate = self
-            self.captureSession.addObserver(self, forKeyPath: "running", options: .New, context: nil)
             self.setupSessionOutputs()
         }
     }
@@ -43,14 +42,12 @@ class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDeleg
     func setupAndStart(isFront: Bool) {
         self.isFront = isFront
         dispatch_async(captureQueue) { () -> Void in
-            autoreleasepool {
-                self.previewManager.settingUp = true
-//                self.previewManager.clearPreviews()
-                self.captureSession.stopRunning()
-                self.setupSessionInputs(isFront)
+            self.previewManager.stopRunning()
+            self.setupSessionInputs(isFront)
+            if !self.captureSession.running {
                 self.captureSession.startRunning()
-                self.previewManager.settingUp = false
             }
+            self.previewManager.startRunning()
         }
     }
     
@@ -75,12 +72,14 @@ class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDeleg
                 currentDevice = (device as! AVCaptureDevice)
             }
         }
+        var inputChanged = false
         if let device = currentDevice {
             captureSession.beginConfiguration()
             captureSession.removeInput(currentInput)
             if let input = try? AVCaptureDeviceInput(device: device) {
                 if captureSession.canAddInput(input) {
                     captureSession.addInput(input)
+                    inputChanged = true
                     currentInput = input
                 }
             }
@@ -96,6 +95,9 @@ class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDeleg
             }
         
             captureSession.commitConfiguration()
+            if inputChanged {
+                delegate?.captureManagerDidSwitchCamera(self)
+            }
         }
     }
     
@@ -123,10 +125,16 @@ class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDeleg
             self.videoCapturer?.stopCapturingPreviewVideo()
         }
     }
+}
+
+extension CNCaptureManager: CNPreviewManagerDelegate {
     
     func previewManagerDidOutputImageBuffer(manager: CNPreviewManager, imageBuffer: CVImageBuffer) {
         videoCapturer?.appendImageBuffer(imageBuffer)
     }
+}
+
+extension CNCaptureManager: CNVideoCapturerDelegate {
     
     func videoCapturerDidStartCapturingPreviewVideo(capturer:CNVideoCapturer, successfull: Bool) {
         if successfull {
@@ -156,44 +164,36 @@ class CNCaptureManager: NSObject, CNPreviewManagerDelegate, CNVideoCapturerDeleg
                 if let placeholder = changeRequest?.placeholderForCreatedAsset {
                     newIdentifier = placeholder.localIdentifier
                 }
-            }, completionHandler: { (succes, error) -> Void in
-                if succes {
-                    if let anIdentif = newIdentifier {
-                        let options = PHFetchOptions()
-                        options.fetchLimit = 1
-                        let result = PHAsset.fetchAssetsWithLocalIdentifiers([anIdentif], options: options)
-                        if result.count == 1 {
-                            let asset = result.objectAtIndex(0) as! PHAsset
-                            self.getAssetUrl(asset, completionHandler: { (responseURL) -> Void in
-                                self.delegate?.captureManagerDidFinishCaptureVideo(self, savedMediaPath: responseURL)
-                            })
+                }, completionHandler: { (succes, error) -> Void in
+                    if succes {
+                        if let anIdentif = newIdentifier {
+                            let options = PHFetchOptions()
+                            options.fetchLimit = 1
+                            let result = PHAsset.fetchAssetsWithLocalIdentifiers([anIdentif], options: options)
+                            if result.count == 1 {
+                                let asset = result.objectAtIndex(0) as! PHAsset
+                                self.getAssetUrl(asset, completionHandler: { (responseURL) -> Void in
+                                    self.delegate?.captureManagerDidFinishCaptureVideo(self, savedMediaPath: responseURL)
+                                })
+                            }
                         }
                     }
-                }
             })
         }
         
         switch status {
-            case .NotDetermined:
-                PHPhotoLibrary.requestAuthorization({ (status) -> Void in
-                    switch status {
-                        case .Denied: break
-                        case .Authorized:
-                            saveVideo()
-                        default: break
-                    }
-                })
-            case .Authorized:
-                saveVideo()
-            default: break
-        }
-    }
-    
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-        if keyPath == "running" {
-            if let session = object as? AVCaptureSession {
-                delegate?.captureManager(self, didChangeRunningStatus: session.running)
-            }
+        case .NotDetermined:
+            PHPhotoLibrary.requestAuthorization({ (status) -> Void in
+                switch status {
+                case .Denied: break
+                case .Authorized:
+                    saveVideo()
+                default: break
+                }
+            })
+        case .Authorized:
+            saveVideo()
+        default: break
         }
     }
 }

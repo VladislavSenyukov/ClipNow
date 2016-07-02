@@ -8,8 +8,7 @@
 
 import UIKit
 
-
-class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordControlDelegate {
+class ViewController: UIViewController {
 
     var captureManager = CNCaptureManager()
     @IBOutlet var backgroundPreview: CNVideoPreviewBlurred?
@@ -27,10 +26,8 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
         captureManager.delegate = self
         captureManager.setupAndStart(true)
         recordControl?.delegate = self
-        
         let previewBgr = captureManager.createPreview(backgroundPreview!.bounds)
         backgroundPreview?.addPreview(previewBgr)
-        
         mainPreview = captureManager.createPreview(CGRect(x: 0, y: 0, width: 190, height: 190))
         previewContainer?.insertSubview(mainPreview!, belowSubview: spinner!)
     }
@@ -44,19 +41,41 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
         recordControlCenterX?.constant = (mainPreview?.frame.height)!
     }
     
-    func captureManager(manager: CNCaptureManager, didChangeRunningStatus running: Bool) {
+    @IBAction func swapButtonClicked() {
+        let isFront = captureManager.isFront
+        swapButton?.enabled = false
+        captureManager.setupAndStart(!isFront)
+    }
+}
+
+extension ViewController: CNRecordControlDelegate {
+    
+    func recordControlRecordClicked(control: CNRecordControl) {
+        if let aPlayedView = playerView {
+            aPlayedView.stop()
+            aPlayedView.removeFromSuperview()
+        }
+        recordControl?.recording = true
+        swapButton?.enabled = false
+        captureManager.startCaptureVideo()
+    }
+    
+    func recordControlStopClicked(control: CNRecordControl) {
+        spinner?.startAnimating()
+        recordControl?.stopCounter()
+        captureManager.stopCaptureVideo()
+    }
+}
+
+extension ViewController: CNCaptureManagerDelegate {
+    
+    func captureManagerDidSwitchCamera(manager: CNCaptureManager) {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
-            self.swapButton?.enabled = running
-            if running {
-                let imageName = manager.isFront ? "ic_camera_rear_white" : "ic_camera_front_white"
-                self.swapButton?.setBackgroundImage(UIImage(named: imageName), forState: .Normal)
-            }
+            self.swapButton?.enabled = true
+            let imageName = manager.isFront ? "ic_camera_rear_white" : "ic_camera_front_white"
+            self.swapButton?.setBackgroundImage(UIImage(named: imageName), forState: .Normal)
         }
     }
-
-//
-//      Capture video delegates
-//
     
     func captureManagerDidStartCaptureVideo(manager: CNCaptureManager) {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
@@ -66,38 +85,18 @@ class ViewController: UIViewController, CNCaptureManagerDelegate, CNRecordContro
     
     func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager, savedMediaPath: NSURL!) {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
-            self.spinner?.stopAnimating()
             self.playerView = CNVideoPlayerView()
             self.playerView?.translatesAutoresizingMaskIntoConstraints = false
-            self.playerView?.backgroundColor = UIColor.blackColor()
+            self.playerView?.backgroundColor = UIColor.clearColor()
             self.previewContainer?.insertSubview(self.playerView!, aboveSubview: self.mainPreview!)
             self.playerView?.addSuperviewSizedConstraints()
-            self.playerView?.play(url: savedMediaPath)
-            
+            self.playerView?.alpha = 0
+            self.playerView?.play(url: savedMediaPath, readyToPlayHandler: { [unowned self]() -> () in
+                self.spinner?.stopAnimating()
+                self.playerView?.alpha = 1
+                })
             self.recordControl?.recording = false
             self.swapButton?.enabled = true
         }
-    }
-    
-//      ---------------------
-//      -------------
-//
-    
-    func recordControlRecordClicked(control: CNRecordControl) {
-        recordControl?.recording = true
-        swapButton?.enabled = false
-        captureManager.startCaptureVideo()
-    }
-
-    func recordControlStopClicked(control: CNRecordControl) {
-        spinner?.startAnimating()
-        recordControl?.stopCounter()
-        captureManager.stopCaptureVideo()
-    }
-    
-    @IBAction func swapButtonClicked() {
-        let isFront = captureManager.isFront
-        swapButton?.enabled = false
-        captureManager.setupAndStart(!isFront)
     }
 }
