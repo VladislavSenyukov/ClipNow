@@ -11,12 +11,12 @@ import GLKit
 import AVFoundation
 
 protocol CNPreviewManagerDelegate {
-    func previewManagerDidOutputImageBuffer(manager: CNPreviewManager, imageBuffer: CVImageBuffer)
+    func previewManagerDidOutputImageBuffer(_ manager: CNPreviewManager, imageBuffer: CVImageBuffer)
 }
 
 class CNGLPreview: GLKView {
-    override func drawRect(rect: CGRect) {
-        super.drawRect(rect)
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
     }
 }
 
@@ -26,13 +26,13 @@ class CNPreviewManager : NSObject {
     var previews = [CNGLPreview]()
     let glContext: EAGLContext
     let ciContext: CIContext
-    var cameraSourceResolution: CGSize = CGSizeZero
-    var scale = UIScreen.mainScreen().scale
+    var cameraSourceResolution: CGSize = CGSize.zero
+    var scale = UIScreen.main.scale
     var settingUp = false
     
     override init() {
-        glContext = EAGLContext(API: .OpenGLES3)
-        ciContext = CIContext(EAGLContext: glContext, options: [kCIContextWorkingColorSpace : NSNull()])
+        glContext = EAGLContext(api: .openGLES3)!
+        ciContext = CIContext(eaglContext: glContext, options: [kCIContextWorkingColorSpace : NSNull()])
     }
     
     func stopRunning() {
@@ -51,8 +51,8 @@ class CNPreviewManager : NSObject {
     }
     
     func clearPreviews() {
-        if EAGLContext.currentContext() != glContext {
-            EAGLContext.setCurrentContext(glContext)
+        if EAGLContext.current() != glContext {
+            EAGLContext.setCurrent(glContext)
         }
         for preview in previews  {
             preview.bindDrawable()
@@ -62,7 +62,7 @@ class CNPreviewManager : NSObject {
         }
     }
     
-    func createPreview(frame: CGRect, isFront: Bool) -> UIView {
+    func createPreview(_ frame: CGRect, isFront: Bool) -> UIView {
         let preview = CNGLPreview(frame: frame, context: glContext)
         previews.append(preview)
         return preview
@@ -71,53 +71,54 @@ class CNPreviewManager : NSObject {
 
 extension CNPreviewManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     
-    func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
+    func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
         if settingUp {
             return
         }
         
-        if EAGLContext.currentContext() != glContext {
-            EAGLContext.setCurrentContext(glContext)
+        if EAGLContext.current() != glContext {
+            EAGLContext.setCurrent(glContext)
         }
         
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
         
-        CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly)
-        let image = CIImage(CVPixelBuffer: imageBuffer, options: nil)
+        CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags.readOnly)
+        let image = CIImage(cvPixelBuffer: imageBuffer, options: nil)
         var sourceRect = image.extent
         let sourceAspect = sourceRect.width / sourceRect.height
-        if !CGSizeEqualToSize(cameraSourceResolution, sourceRect.size) {
+        if !cameraSourceResolution.equalTo(sourceRect.size) {
             cameraSourceResolution = sourceRect.size
         }
         
-        for preview in previews  {
-            var drawRect = preview.bounds
-            drawRect.size.width *= scale
-            drawRect.size.height *= scale
-            let drawAspect = drawRect.width / drawRect.height
-            if drawAspect < sourceAspect {
-                sourceRect.origin.x += (sourceRect.width - sourceRect.height * drawAspect) / 2
-                sourceRect.size.width = sourceRect.size.height * drawAspect
-            } else {
-                sourceRect.origin.y += (sourceRect.height - sourceRect.width / drawAspect) / 2
-                sourceRect.size.height = sourceRect.width / drawAspect
+        DispatchQueue.main.async {
+            for preview in self.previews  {
+                var drawRect = preview.bounds
+                drawRect.size.width *= self.scale
+                drawRect.size.height *= self.scale
+                let drawAspect = drawRect.width / drawRect.height
+                if drawAspect < sourceAspect {
+                    sourceRect.origin.x += (sourceRect.width - sourceRect.height * drawAspect) / 2
+                    sourceRect.size.width = sourceRect.size.height * drawAspect
+                } else {
+                    sourceRect.origin.y += (sourceRect.height - sourceRect.width / drawAspect) / 2
+                    sourceRect.size.height = sourceRect.width / drawAspect
+                }
+                
+                preview.bindDrawable()
+                self.fillWithDefaultColor()
+                glEnable(GLenum(GL_BLEND))
+                glBlendFunc(GLenum(GL_ONE), GLenum(GL_ONE_MINUS_SRC_ALPHA))
+                
+                self.ciContext.draw(image, in: drawRect, from: sourceRect)
+                preview.display()
+                preview.deleteDrawable()
             }
-            
-            preview.bindDrawable()
-            fillWithDefaultColor()
-            glEnable(GLenum(GL_BLEND))
-            glBlendFunc(GLenum(GL_ONE), GLenum(GL_ONE_MINUS_SRC_ALPHA))
-            
-            ciContext.drawImage(image, inRect: drawRect, fromRect: sourceRect)
-            preview.display()
-            preview.deleteDrawable()
         }
-        
+
         delegate?.previewManagerDidOutputImageBuffer(self, imageBuffer: imageBuffer)
-        
-        CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly)
+        CVPixelBufferUnlockBaseAddress(imageBuffer, CVPixelBufferLockFlags.readOnly)
     }
 }

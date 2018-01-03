@@ -11,15 +11,15 @@ import AVFoundation
 import Photos
 
 protocol CNCaptureManagerDelegate {
-    func captureManagerDidSwitchCamera(manager:CNCaptureManager)
-    func captureManagerDidStartCaptureVideo(manager:CNCaptureManager)
-    func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager, savedMediaPath: NSURL!)
+    func captureManagerDidSwitchCamera(_ manager:CNCaptureManager)
+    func captureManagerDidStartCaptureVideo(_ manager:CNCaptureManager)
+    func captureManagerDidFinishCaptureVideo(_ manager:CNCaptureManager, savedMediaPath: URL!)
 }
 
 class CNCaptureManager: NSObject {
     
     var delegate: CNCaptureManagerDelegate?
-    var captureQueue: dispatch_queue_t = dispatch_queue_create("com.apple.captureQueue", DISPATCH_QUEUE_SERIAL)
+    var captureQueue: DispatchQueue = DispatchQueue(label: "com.apple.captureQueue", attributes: [])
     var isFront = false
     
     var captureSession = AVCaptureSession()
@@ -29,22 +29,25 @@ class CNCaptureManager: NSObject {
     
     var currentDevice: AVCaptureDevice?
     var currentInput: AVCaptureDeviceInput?
+    var audioInput: AVCaptureDeviceInput?
+    var audioOutput: AVCaptureAudioDataOutput?
     var currentPreviewOutput: AVCaptureVideoDataOutput?
+    let outputFileType = AVFileType.mp4
     
     override init() {
         super.init()
-        dispatch_async(captureQueue) { () -> Void in
+        captureQueue.async { () -> Void in
             self.previewManager.delegate = self
             self.setupSessionOutputs()
         }
     }
     
-    func setupAndStart(isFront: Bool) {
+    func setupAndStart(_ isFront: Bool) {
         self.isFront = isFront
-        dispatch_async(captureQueue) { () -> Void in
+        captureQueue.async { () -> Void in
             self.previewManager.stopRunning()
             self.setupSessionInputs(isFront)
-            if !self.captureSession.running {
+            if !self.captureSession.isRunning {
                 self.captureSession.startRunning()
             }
             self.previewManager.startRunning()
@@ -55,27 +58,47 @@ class CNCaptureManager: NSObject {
         captureSession.beginConfiguration()
         
         currentPreviewOutput = AVCaptureVideoDataOutput()
-        currentPreviewOutput!.videoSettings = [kCVPixelBufferPixelFormatTypeKey : NSNumber(unsignedInt: kCVPixelFormatType_32BGRA)]
+        currentPreviewOutput!.videoSettings = [kCVPixelBufferPixelFormatTypeKey as AnyHashable as! String : NSNumber(value: kCVPixelFormatType_32BGRA as UInt32)]
         currentPreviewOutput!.setSampleBufferDelegate(previewManager, queue: captureQueue)
-        if captureSession.canAddOutput(currentPreviewOutput) {
-            captureSession.addOutput(currentPreviewOutput)
+        if captureSession.canAddOutput(currentPreviewOutput!) {
+            captureSession.addOutput(currentPreviewOutput!)
         }
+        
+//        audioOutput = AVCaptureAudioDataOutput()
+//        let audioCaptureQueue = DispatchQueue(label: "CN_Audio_Queue", attributes: [])
+//        audioOutput?.setSampleBufferDelegate(self, queue: audioCaptureQueue)
+//        if captureSession.canAddOutput(audioOutput!) {
+//            captureSession.addOutput(audioOutput!)
+//        }
         
         captureSession.commitConfiguration()
     }
 
-    func setupSessionInputs(isFrontalCamera: Bool) {
+    func setupSessionInputs(_ isFrontalCamera: Bool) {
         currentDevice = nil
-        let devices = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo)
+        let devices = AVCaptureDevice.devices(for: AVMediaType.video)
         for device in devices {
-            if (device.position == .Back && !isFrontalCamera) || (device.position == .Front && isFrontalCamera) {
-                currentDevice = (device as! AVCaptureDevice)
+            if ((device as AnyObject).position == .back && !isFrontalCamera) || ((device as AnyObject).position == .front && isFrontalCamera) {
+                currentDevice = (device )
             }
         }
+        
+//        if audioInput == nil {
+//            let audioDevices = AVCaptureDevice.devices(for: AVMediaType.audio)
+//            if let audioDevice = audioDevices.first {
+//                audioInput = try? AVCaptureDeviceInput(device: audioDevice )
+//                if captureSession.canAddInput(audioInput!) {
+//                    captureSession.addInput(audioInput!)
+//                }
+//            }
+//        }
+        
         var inputChanged = false
         if let device = currentDevice {
             captureSession.beginConfiguration()
-            captureSession.removeInput(currentInput)
+            if let input = currentInput {
+                captureSession.removeInput(input)
+            }
             if let input = try? AVCaptureDeviceInput(device: device) {
                 if captureSession.canAddInput(input) {
                     captureSession.addInput(input)
@@ -84,13 +107,13 @@ class CNCaptureManager: NSObject {
                 }
             }
             
-            let connection = currentPreviewOutput?.connectionWithMediaType(AVMediaTypeVideo)
+            let connection = currentPreviewOutput?.connection(with: AVMediaType.video)
             if let aConn = connection {
-                if aConn.supportsVideoOrientation {
-                    connection?.videoOrientation = .Portrait
+                if aConn.isVideoOrientationSupported {
+                    connection?.videoOrientation = .portrait
                 }
-                if aConn.supportsVideoMirroring {
-                    aConn.videoMirrored = isFrontalCamera
+                if aConn.isVideoMirroringSupported {
+                    aConn.isVideoMirrored = isFrontalCamera
                 }
             }
         
@@ -101,48 +124,55 @@ class CNCaptureManager: NSObject {
         }
     }
     
-    func createPreview(frame: CGRect) -> UIView {
+    func createPreview(_ frame: CGRect) -> UIView {
         return previewManager.createPreview(frame, isFront: isFront)
     }
     
     func startCaptureVideo() {
-        dispatch_async(captureQueue) { () -> Void in
-            if self.captureSession.running {
+        captureQueue.async { () -> Void in
+            if self.captureSession.isRunning {
                 self.videoCapturer = CNVideoCapturer()
                 self.videoCapturer?.delegate = self
-                let tempPath = NSURL.tempPathForFile("temp_output.mov")
+                let tempPath = URL.tempPathForFile("temp_output.mov")
                 let videoWidth = CGFloat(300)
                 let resolution = self.previewManager.cameraSourceResolution
                 let aspect = resolution.height / resolution.width
                 let videoSize = CGSize(width: videoWidth, height: ceil(videoWidth * aspect))
-                self.videoCapturer?.startCapturingPreviewVideo(tempPath, videoSize: videoSize)
+//                let audioSettings = self.audioOutput?.recommendedAudioSettingsForAssetWriter(writingTo: self.outputFileType) as! [String:AnyObject]
+                self.videoCapturer?.startCapturingPreviewVideo(tempPath, videoSize: videoSize, audioSettings: nil, fileType: self.outputFileType.rawValue)
             }
         }
     }
     
     func stopCaptureVideo() {
-        dispatch_async(captureQueue) { () -> Void in
+        captureQueue.async { () -> Void in
             self.videoCapturer?.stopCapturingPreviewVideo()
         }
     }
 }
 
+extension CNCaptureManager : AVCaptureAudioDataOutputSampleBufferDelegate {
+    func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+//        videoCapturer?.appendAudioBuffer(sampleBuffer)
+    }
+}
+
 extension CNCaptureManager: CNPreviewManagerDelegate {
     
-    func previewManagerDidOutputImageBuffer(manager: CNPreviewManager, imageBuffer: CVImageBuffer) {
+    func previewManagerDidOutputImageBuffer(_ manager: CNPreviewManager, imageBuffer: CVImageBuffer) {
         videoCapturer?.appendImageBuffer(imageBuffer)
     }
 }
 
 extension CNCaptureManager: CNVideoCapturerDelegate {
     
-    func videoCapturerDidStartCapturingPreviewVideo(capturer:CNVideoCapturer, successfull: Bool) {
+    func videoCapturerDidStartCapturingPreviewVideo(_ capturer:CNVideoCapturer, successfull: Bool) {
         if successfull {
             delegate?.captureManagerDidStartCaptureVideo(self)
         }
     }
     
-    func videoCapturerDidFinishCapturingPreviewVideo(capturer:CNVideoCapturer, path: NSURL, error: NSError?) {
+    func videoCapturerDidFinishCapturingPreviewVideo(_ capturer:CNVideoCapturer, path: URL, error: NSError?) {
         if let anError = error {
             print(anError.localizedDescription)
         }
@@ -152,15 +182,15 @@ extension CNCaptureManager: CNVideoCapturerDelegate {
         }
     }
     
-    func saveTempVideoToPhotoLibrary(videoPath: NSURL) {
-        let photosLibr = PHPhotoLibrary.sharedPhotoLibrary()
+    func saveTempVideoToPhotoLibrary(_ videoPath: URL) {
+        let photosLibr = PHPhotoLibrary.shared()
         let status = PHPhotoLibrary.authorizationStatus()
         
         let saveVideo = { () -> Void in
             var changeRequest: PHAssetChangeRequest?
             var newIdentifier: String? = nil
             photosLibr.performChanges({ () -> Void in
-                changeRequest = PHAssetChangeRequest.creationRequestForAssetFromVideoAtFileURL(videoPath)
+                changeRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: videoPath)
                 if let placeholder = changeRequest?.placeholderForCreatedAsset {
                     newIdentifier = placeholder.localIdentifier
                 }
@@ -169,9 +199,9 @@ extension CNCaptureManager: CNVideoCapturerDelegate {
                         if let anIdentif = newIdentifier {
                             let options = PHFetchOptions()
                             options.fetchLimit = 1
-                            let result = PHAsset.fetchAssetsWithLocalIdentifiers([anIdentif], options: options)
+                            let result = PHAsset.fetchAssets(withLocalIdentifiers: [anIdentif], options: options)
                             if result.count == 1 {
-                                let asset = result.objectAtIndex(0) as! PHAsset
+                                let asset = result.object(at: 0) 
                                 self.getAssetUrl(asset, completionHandler: { (responseURL) -> Void in
                                     self.delegate?.captureManagerDidFinishCaptureVideo(self, savedMediaPath: responseURL)
                                 })
@@ -182,16 +212,16 @@ extension CNCaptureManager: CNVideoCapturerDelegate {
         }
         
         switch status {
-        case .NotDetermined:
+        case .notDetermined:
             PHPhotoLibrary.requestAuthorization({ (status) -> Void in
                 switch status {
-                case .Denied: break
-                case .Authorized:
+                case .denied: break
+                case .authorized:
                     saveVideo()
                 default: break
                 }
             })
-        case .Authorized:
+        case .authorized:
             saveVideo()
         default: break
         }
@@ -200,42 +230,42 @@ extension CNCaptureManager: CNVideoCapturerDelegate {
 
 extension CNCaptureManager {
 
-    func getAssetUrl(mPhasset : PHAsset, completionHandler : ((responseURL : NSURL?) -> Void)){
-        if mPhasset.mediaType == .Image {
+    func getAssetUrl(_ mPhasset : PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)){
+        if mPhasset.mediaType == .image {
             let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
             options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
                 return true
             }
-            mPhasset.requestContentEditingInputWithOptions(options, completionHandler: {(contentEditingInput: PHContentEditingInput?, info: [NSObject : AnyObject]) -> Void in
-                completionHandler(responseURL : contentEditingInput!.fullSizeImageURL)
+            mPhasset.requestContentEditingInput(with: options, completionHandler: {(contentEditingInput: PHContentEditingInput?, info: [AnyHashable: Any]) -> Void in
+                completionHandler(contentEditingInput!.fullSizeImageURL)
             })
-        } else if mPhasset.mediaType == .Video {
+        } else if mPhasset.mediaType == .video {
             let options: PHVideoRequestOptions = PHVideoRequestOptions()
-            options.version = .Original
-            PHImageManager.defaultManager().requestAVAssetForVideo(mPhasset, options: options, resultHandler: {(asset: AVAsset?, audioMix: AVAudioMix?, info: [NSObject : AnyObject]?) -> Void in
+            options.version = .original
+            PHImageManager.default().requestAVAsset(forVideo: mPhasset, options: options, resultHandler: {(asset: AVAsset?, audioMix: AVAudioMix?, info: [AnyHashable: Any]?) -> Void in
                 
                 if let urlAsset = asset as? AVURLAsset {
-                    let localVideoUrl : NSURL = urlAsset.URL
-                    completionHandler(responseURL : localVideoUrl)
+                    let localVideoUrl : URL = urlAsset.url
+                    completionHandler(localVideoUrl)
                 } else {
-                    completionHandler(responseURL : nil)
+                    completionHandler(nil)
                 }
             })
         }
     }
 }
 
-extension NSURL {
-    static func tempPathForFile(name: String) -> NSURL {
+extension URL {
+    static func tempPathForFile(_ name: String) -> URL {
         let outputPath = NSTemporaryDirectory() + name
-        if NSFileManager.defaultManager().fileExistsAtPath(outputPath) {
+        if FileManager.default.fileExists(atPath: outputPath) {
             do {
-                try NSFileManager.defaultManager().removeItemAtPath(outputPath)
+                try FileManager.default.removeItem(atPath: outputPath)
             }
             catch let error as NSError {
                 print(error.localizedDescription)
             }
         }
-        return NSURL(fileURLWithPath: outputPath)
+        return URL(fileURLWithPath: outputPath)
     }
 }

@@ -18,6 +18,7 @@
 		D47467791D26F2970004A8B6 /* CNVideoCropper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47467781D26F2970004A8B6 /* CNVideoCropper.swift */; };
 		D474677B1D26F49C0004A8B6 /* CNVideoCapturer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D474677A1D26F49C0004A8B6 /* CNVideoCapturer.swift */; };
 		D474677D1D2717560004A8B6 /* CNVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D474677C1D2717560004A8B6 /* CNVideoPlayer.swift */; };
+		D4C6441E1D2A61AE00383C8F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4C6441D1D2A61AE00383C8F /* CoreAudio.framework */; };
 		D4EFE74A1D243769007B5E95 /* CNPreviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE7491D243769007B5E95 /* CNPreviewManager.swift */; };
 		D4EFE7501D24B702007B5E95 /* NSLayoutConstraint+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE74D1D24B702007B5E95 /* NSLayoutConstraint+Additions.m */; };
 		D4EFE7511D24B702007B5E95 /* View+LayoutConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = D4EFE74F1D24B702007B5E95 /* View+LayoutConstraints.m */; };
@@ -38,6 +39,7 @@
 		D47467781D26F2970004A8B6 /* CNVideoCropper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNVideoCropper.swift; sourceTree = "<group>"; };
 		D474677A1D26F49C0004A8B6 /* CNVideoCapturer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNVideoCapturer.swift; sourceTree = "<group>"; };
 		D474677C1D2717560004A8B6 /* CNVideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNVideoPlayer.swift; sourceTree = "<group>"; };
+		D4C6441D1D2A61AE00383C8F /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		D4EFE7491D243769007B5E95 /* CNPreviewManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CNPreviewManager.swift; sourceTree = "<group>"; };
 		D4EFE74C1D24B702007B5E95 /* NSLayoutConstraint+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSLayoutConstraint+Additions.h"; sourceTree = "<group>"; };
 		D4EFE74D1D24B702007B5E95 /* NSLayoutConstraint+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSLayoutConstraint+Additions.m"; sourceTree = "<group>"; };
@@ -50,6 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4C6441E1D2A61AE00383C8F /* CoreAudio.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +62,7 @@
 		D41664D71D23C47A00800550 = {
 			isa = PBXGroup;
 			children = (
+				D4C6441D1D2A61AE00383C8F /* CoreAudio.framework */,
 				D41664E21D23C47A00800550 /* ClipNow */,
 				D41664E11D23C47A00800550 /* Products */,
 			);
@@ -140,11 +144,13 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = ruckef;
 				TargetAttributes = {
 					D41664DF1D23C47A00800550 = {
 						CreatedOnToolsVersion = 7.2.1;
+						DevelopmentTeam = ZVHW8QUG2S;
+						LastSwiftMigration = 0900;
 					};
 				};
 			};
@@ -228,13 +234,21 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -272,13 +286,21 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -297,6 +319,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -305,6 +328,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = ZVHW8QUG2S;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = ClipNow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -313,6 +337,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ruckef.ClipNow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "ClipNow/ClipNow-Bridging-Header.h";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -320,6 +346,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = ZVHW8QUG2S;
 				INFOPLIST_FILE = ClipNow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -327,6 +354,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ruckef.ClipNow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "ClipNow/ClipNow-Bridging-Header.h";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};

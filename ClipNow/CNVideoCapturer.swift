@@ -7,10 +7,11 @@
 //
 
 import AVFoundation
+import CoreAudio
 
 protocol CNVideoCapturerDelegate {
-    func videoCapturerDidStartCapturingPreviewVideo(capturer:CNVideoCapturer, successfull: Bool)
-    func videoCapturerDidFinishCapturingPreviewVideo(capturer:CNVideoCapturer, path: NSURL, error: NSError?)
+    func videoCapturerDidStartCapturingPreviewVideo(_ capturer:CNVideoCapturer, successfull: Bool)
+    func videoCapturerDidFinishCapturingPreviewVideo(_ capturer:CNVideoCapturer, path: URL, error: NSError?)
 }
 
 class CNVideoCapturer {
@@ -19,33 +20,39 @@ class CNVideoCapturer {
     var assetWriter: AVAssetWriter?
     var assetWriterInput: AVAssetWriterInput?
     var pixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
+    var audioWriterInput: AVAssetWriterInput?
     var framesWritten: Int64 = 0
     var capturing = false
     
-    func startCapturingPreviewVideo(tempFilePathUrl: NSURL, videoSize: CGSize) {
-        let outputSettings: [String:AnyObject] = [  AVVideoWidthKey     : videoSize.width,
-                                                    AVVideoHeightKey    : videoSize.height,
-                                                    AVVideoCodecKey     : AVVideoCodecH264]
-        assetWriterInput = AVAssetWriterInput(mediaType: AVMediaTypeVideo, outputSettings: outputSettings)
-        let pixelBufferAttributes : [String:AnyObject] = [kCVPixelBufferPixelFormatTypeKey as String : NSNumber(unsignedInt: kCVPixelFormatType_32BGRA)]
+    func startCapturingPreviewVideo(_ tempFilePathUrl: URL, videoSize: CGSize, audioSettings: [String:AnyObject]?, fileType: String) {
+        let outputSettings: [String:AnyObject] = [  AVVideoWidthKey     : videoSize.width as AnyObject,
+                                                    AVVideoHeightKey    : videoSize.height as AnyObject,
+                                                    AVVideoCodecKey     : AVVideoCodecH264 as AnyObject]
+        assetWriterInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: outputSettings)
+        let pixelBufferAttributes : [String:AnyObject] = [kCVPixelBufferPixelFormatTypeKey as String : NSNumber(value: kCVPixelFormatType_32BGRA as UInt32)]
         pixelBufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: assetWriterInput!, sourcePixelBufferAttributes: pixelBufferAttributes)
-        do {
-            assetWriter = try AVAssetWriter(URL: tempFilePathUrl, fileType: AVFileTypeMPEG4)
-        } catch (let error as NSError) {
-            print(error.localizedDescription)
-        }
-        if (assetWriter?.canAddInput(assetWriterInput!))! {
-            assetWriter?.addInput(assetWriterInput!)
-        }
         assetWriterInput?.expectsMediaDataInRealTime = true
+        
+//        audioWriterInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioSettings)
+//        audioWriterInput?.expectsMediaDataInRealTime = true
+        
+        assetWriter = try? AVAssetWriter(outputURL: tempFilePathUrl, fileType: AVFileType(rawValue: fileType))
+        if assetWriter!.canAdd(assetWriterInput!) {
+            assetWriter?.add(assetWriterInput!)
+        }
+//        if assetWriter!.canAdd(audioWriterInput!) {
+//            assetWriter?.add(audioWriterInput!)
+//        }
+        assetWriter?.canApply(outputSettings: audioSettings, forMediaType: AVMediaType.audio)
+        
         if (assetWriter?.startWriting())! {
-            assetWriter?.startSessionAtSourceTime(kCMTimeZero)
+            assetWriter?.startSession(atSourceTime: kCMTimeZero)
             framesWritten = 0
             capturing = true
             
             var success = false
             switch (assetWriter?.status)! {
-            case .Writing :
+            case .writing :
                 success = true
             default: break
             }
@@ -56,17 +63,41 @@ class CNVideoCapturer {
     func stopCapturingPreviewVideo() -> AVAssetWriter {
         capturing = false
         assetWriterInput?.markAsFinished()
-        assetWriter?.finishWritingWithCompletionHandler({[unowned self] () -> Void in
+//        audioWriterInput?.markAsFinished()
+        assetWriter?.finishWriting(completionHandler: {[unowned self] () -> Void in
             let url = (self.assetWriter?.outputURL)!
-            self.delegate?.videoCapturerDidFinishCapturingPreviewVideo(self, path: url, error: self.assetWriter?.error)
+            self.delegate?.videoCapturerDidFinishCapturingPreviewVideo(self, path: url, error: self.assetWriter?.error as NSError?)
             })
         return assetWriter!
     }
     
-    func appendImageBuffer(imageBuffer: CVImageBuffer) {
-        if (assetWriterInput?.readyForMoreMediaData)! {
-            pixelBufferAdaptor?.appendPixelBuffer(imageBuffer, withPresentationTime: CMTimeMake(framesWritten, 25))
-            framesWritten++
+    func appendImageBuffer(_ imageBuffer: CVImageBuffer) {
+        guard capturing else {
+            return
+        }
+        if assetWriterInput!.isReadyForMoreMediaData {
+            pixelBufferAdaptor?.append(imageBuffer, withPresentationTime: CMTimeMake(framesWritten, 25))
+            framesWritten += 1
+        }
+    }
+    
+    func appendAudioBuffer(_ audioDataBuffer: CMSampleBuffer) {
+        guard capturing else {
+            return
+        }
+        if audioWriterInput!.isReadyForMoreMediaData {
+            var audioBufferList = AudioBufferList()
+            var blockBuffer: CMBlockBuffer? = nil
+            CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+                audioDataBuffer,
+                nil,
+                &audioBufferList,
+                Int(MemoryLayout<AudioBufferList>.size),
+                nil,
+                nil,
+                UInt32(kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment),
+                &blockBuffer)
+            assetWriterInput?.append(audioDataBuffer)
         }
     }
 }

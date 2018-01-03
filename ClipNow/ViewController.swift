@@ -32,7 +32,7 @@ class ViewController: UIViewController {
         previewContainer?.insertSubview(mainPreview!, belowSubview: spinner!)
     }
     
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     
@@ -43,24 +43,24 @@ class ViewController: UIViewController {
     
     @IBAction func swapButtonClicked() {
         let isFront = captureManager.isFront
-        swapButton?.enabled = false
+        swapButton?.isEnabled = false
         captureManager.setupAndStart(!isFront)
     }
 }
 
 extension ViewController: CNRecordControlDelegate {
     
-    func recordControlRecordClicked(control: CNRecordControl) {
+    func recordControlRecordClicked(_ control: CNRecordControl) {
         if let aPlayedView = playerView {
             aPlayedView.stop()
             aPlayedView.removeFromSuperview()
         }
         recordControl?.recording = true
-        swapButton?.enabled = false
+        swapButton?.isEnabled = false
         captureManager.startCaptureVideo()
     }
     
-    func recordControlStopClicked(control: CNRecordControl) {
+    func recordControlStopClicked(_ control: CNRecordControl) {
         spinner?.startAnimating()
         recordControl?.stopCounter()
         captureManager.stopCaptureVideo()
@@ -69,25 +69,25 @@ extension ViewController: CNRecordControlDelegate {
 
 extension ViewController: CNCaptureManagerDelegate {
     
-    func captureManagerDidSwitchCamera(manager: CNCaptureManager) {
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
-            self.swapButton?.enabled = true
+    func captureManagerDidSwitchCamera(_ manager: CNCaptureManager) {
+        DispatchQueue.main.async { () -> Void in
+            self.swapButton?.isEnabled = true
             let imageName = manager.isFront ? "ic_camera_rear_white" : "ic_camera_front_white"
-            self.swapButton?.setBackgroundImage(UIImage(named: imageName), forState: .Normal)
+            self.swapButton?.setBackgroundImage(UIImage(named: imageName), for: UIControlState())
         }
     }
     
-    func captureManagerDidStartCaptureVideo(manager: CNCaptureManager) {
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+    func captureManagerDidStartCaptureVideo(_ manager: CNCaptureManager) {
+        DispatchQueue.main.async { () -> Void in
             self.recordControl?.startCounter()
         }
     }
     
-    func captureManagerDidFinishCaptureVideo(manager:CNCaptureManager, savedMediaPath: NSURL!) {
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+    func captureManagerDidFinishCaptureVideo(_ manager:CNCaptureManager, savedMediaPath: URL!) {
+        DispatchQueue.main.async { () -> Void in
             self.playerView = CNVideoPlayerView()
             self.playerView?.translatesAutoresizingMaskIntoConstraints = false
-            self.playerView?.backgroundColor = UIColor.clearColor()
+            self.playerView?.backgroundColor = UIColor.clear
             self.previewContainer?.insertSubview(self.playerView!, aboveSubview: self.mainPreview!)
             self.playerView?.addSuperviewSizedConstraints()
             self.playerView?.alpha = 0
@@ -96,7 +96,7 @@ extension ViewController: CNCaptureManagerDelegate {
                 self.playerView?.alpha = 1
                 })
             self.recordControl?.recording = false
-            self.swapButton?.enabled = true
+            self.swapButton?.isEnabled = true
         }
     }
 }

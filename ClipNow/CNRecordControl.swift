@@ -9,8 +9,8 @@
 import UIKit
 
 protocol CNRecordControlDelegate {
-    func recordControlRecordClicked(control: CNRecordControl)
-    func recordControlStopClicked(control: CNRecordControl)
+    func recordControlRecordClicked(_ control: CNRecordControl)
+    func recordControlStopClicked(_ control: CNRecordControl)
 }
 
 class CNRecordControl: UIView {
@@ -21,11 +21,11 @@ class CNRecordControl: UIView {
             if recording {
                 prepareRecordControls()
             }
-            stopRecordButton?.enabled = recording
-            recordButton?.enabled = !recording
-            recordButton?.hidden = recording
-            counterLabel?.hidden = !recording
-            circle?.hidden = !recording
+            stopRecordButton?.isEnabled = recording
+            recordButton?.isEnabled = !recording
+            recordButton?.isHidden = recording
+            counterLabel?.isHidden = !recording
+            circle?.isHidden = !recording
         }
     }
     var recordButton: UIButton?
@@ -33,7 +33,7 @@ class CNRecordControl: UIView {
     var counterLabel: UILabel?
     var circle: UIView?
     var timeElapsed: UInt32 = 0
-    var secondTimer: NSTimer?
+    var secondTimer: Timer?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,19 +46,20 @@ class CNRecordControl: UIView {
     }
     
     func initialize() {
-        backgroundColor = UIColor.clearColor()
-        stopRecordButton = UIButton(type: .Custom)
+        backgroundColor = UIColor.clear
+        stopRecordButton = UIButton(type: .custom)
         stopRecordButton?.translatesAutoresizingMaskIntoConstraints = false
-        stopRecordButton?.addTarget(self, action: Selector("stopRecordingClicked"), forControlEvents: .TouchUpInside)
+        
+        stopRecordButton?.addTarget(self, action: #selector(CNRecordControl.stopRecordingClicked), for: .touchUpInside)
         addSubview(stopRecordButton!)
         stopRecordButton?.addSuperviewSizedConstraints()
         
-        recordButton = UIButton(type: .Custom)
+        recordButton = UIButton(type: .custom)
         recordButton?.translatesAutoresizingMaskIntoConstraints = false
-        recordButton?.addTarget(self, action: Selector("recordButtonClicked"), forControlEvents: .TouchUpInside)
+        recordButton?.addTarget(self, action: #selector(CNRecordControl.recordButtonClicked), for: .touchUpInside)
         recordButton?.titleLabel?.font = UIFont(name: "HelveticaNeue-Medium", size: 25)
-        recordButton?.setTitleColor(UIColor(red: 0.7, green: 0, blue: 0, alpha: 1), forState: .Normal)
-        recordButton?.setTitle("Record", forState: .Normal)
+        recordButton?.setTitleColor(UIColor(red: 0.7, green: 0, blue: 0, alpha: 1), for: UIControlState())
+        recordButton?.setTitle("Record", for: UIControlState())
         recordButton?.layer.cornerRadius = 10
         recordButton?.backgroundColor = UIColor(white: 0.5, alpha: 1)
         addSubview(recordButton!)
@@ -73,10 +74,9 @@ class CNRecordControl: UIView {
         counterLabel?.font = UIFont(name: "HelveticaNeue-Medium", size: 25)
         counterLabel?.textColor = UIColor(white: 0.9, alpha: 1)
         counterLabel?.text = "00:00:00"
+        counterLabel?.textAlignment = .center
         addSubview(counterLabel!)
-        counterLabel?.addConstraintEqualHeight()
-        counterLabel?.addConstraintCenterVertically()
-        counterLabel?.addConstraintCenterHorizontally()
+        counterLabel?.addSuperviewSizedConstraints()
         
         circle = UIView()
         circle?.translatesAutoresizingMaskIntoConstraints = false
@@ -92,28 +92,18 @@ class CNRecordControl: UIView {
     }
     
     override func layoutSubviews() {
-        let veryWide = NSLayoutConstraint(item: counterLabel!, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: 1e8)
-        veryWide.priority = (counterLabel?.contentCompressionResistancePriorityForAxis(.Horizontal)
-            )!
-        counterLabel?.addConstraint(veryWide)
-        
         super.layoutSubviews()
-        
-        counterLabel?.preferredMaxLayoutWidth = bounds.width
-        counterLabel?.removeConstraint(veryWide)
-        super.layoutSubviews()
-        
         circle?.layer.cornerRadius = (circle?.bounds.width)!/2
     }
     
-    func recordButtonClicked() {
+    @objc func recordButtonClicked() {
         delegate?.recordControlRecordClicked(self)
-        recordButton?.enabled = false
+        recordButton?.isEnabled = false
     }
     
-    func stopRecordingClicked() {
+    @objc func stopRecordingClicked() {
         delegate?.recordControlStopClicked(self)
-        stopRecordButton?.enabled = false
+        stopRecordButton?.isEnabled = false
     }
     
     func prepareRecordControls() {
@@ -122,14 +112,15 @@ class CNRecordControl: UIView {
     }
     
     func startCounter() {
-        secondTimer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("secondElapsed"), userInfo: nil, repeats: true)
+        secondTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(CNRecordControl.secondElapsed), userInfo: nil, repeats: true)
     }
     
-    func secondElapsed() {
-        updateTimeLabel(++timeElapsed)
+    @objc func secondElapsed() {
+        timeElapsed += 1
+        updateTimeLabel(timeElapsed)
     }
     
-    func updateTimeLabel(time:UInt32) {
+    func updateTimeLabel(_ time:UInt32) {
         let seconds = time%60
         let minutes = (time%(60*60))/60
         let hours = time/(60*60)
